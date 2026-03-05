@@ -9,7 +9,6 @@ limit = 60 * 60 * 3
 
 
 if __name__ == "__main__":
-
     recs = []
     for f in Path("runs/run-logs").iterdir():
         try:
@@ -18,8 +17,10 @@ if __name__ == "__main__":
             continue
         if float(tss) > (time.time() - limit):
             rec = {"solution": sol}
-            for l in f.read_text().strip().split("\n"):
+            for l in f.read_text().strip().split("\t"):
                 k, v = l.split(":")
+                if "ms" in v:
+                    v = v.replace("ms", "")
                 rec[k.strip()] = float(v.strip())
             recs.append(rec)
 
@@ -30,6 +31,7 @@ if __name__ == "__main__":
         lines.append(
             gdf.drop(gcols, axis=1)
             .sort_values("compute")
+            .round(2)
             .drop_duplicates("solution")
             .to_markdown(index=False)
         )
